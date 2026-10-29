@@ -10,6 +10,7 @@ import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useDispatch, useSelector } from '@services/store';
+import { padOrderNumber } from '@utils/constants';
 
 import type { TIngredient } from '@utils-types';
 
@@ -76,5 +77,12 @@ export const OrderInfo = (): React.JSX.Element => {
     return <Preloader />;
   }
 
-  return <OrderInfoUI orderInfo={orderInfo} />;
+  return (
+    <>
+      <p className="text text_type_digits-default" style={{ textAlign: 'center' }}>
+        {padOrderNumber(number ?? '')}
+      </p>
+      <OrderInfoUI orderInfo={orderInfo} />
+    </>
+  );
 };

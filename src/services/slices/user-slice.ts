@@ -32,7 +32,7 @@ const saveTokens = (accessToken: string, refreshToken: string): void => {
 
 const clearTokens = (): void => {
   deleteCookie(ACCESS_TOKEN_COOKIE_NAME);
-  localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  localStorage.clear();
 };
 
 export const registerUser = createAsyncThunk(

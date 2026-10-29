@@ -26,10 +26,10 @@ import { fetchIngredients } from '@slices/ingredients-slice';
 import { checkUserAuth } from '@slices/user-slice';
 import { Preloader } from '@ui';
 import { useEffect } from 'react';
-import { Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import { useDispatch, useSelector } from '@services/store';
-import { padOrderNumber, ROUTES } from '@utils/constants';
+import { ROUTES } from '@utils/constants';
 
 import type { AppContentProps } from './type';
 import type { Location } from 'react-router-dom';
@@ -37,6 +37,8 @@ import type { Location } from 'react-router-dom';
 import '../../index.css';
 
 import styles from './app.module.css';
+
+const EMPTY_MODAL_TITLE = '';
 
 type TLocationState = {
   background?: Location;
@@ -97,68 +99,36 @@ const AppContent = ({
   return <RouteComponent />;
 };
 
-const IngredientPage = (): React.JSX.Element => (
-  <div className={styles.detailPageWrap}>
-    <p className={`${styles.detailHeader} text text_type_main-large`}>
-      Детали ингредиента
-    </p>
-    <IngredientDetails />
-  </div>
-);
-
-const OrderPage = (): React.JSX.Element => {
-  const { number } = useParams();
-
-  return (
-    <div className={styles.detailPageWrap}>
-      <p className={`${styles.detailHeader} text text_type_digits-default`}>
-        {padOrderNumber(number ?? '')}
-      </p>
-      <OrderInfo />
-    </div>
-  );
-};
-
-const IngredientModal = (): React.JSX.Element => {
-  const navigate = useNavigate();
-
-  const handleClose = (): void => {
-    void navigate(-1);
-  };
-
-  return (
-    <Modal onClose={handleClose} title="Детали ингредиента">
-      <IngredientDetails />
-    </Modal>
-  );
-};
-
-const OrderModal = (): React.JSX.Element => {
-  const { number } = useParams();
-  const navigate = useNavigate();
-
-  const handleClose = (): void => {
-    void navigate(-1);
-  };
-
-  return (
-    <Modal onClose={handleClose} title={padOrderNumber(number ?? '')}>
-      <OrderInfo />
-    </Modal>
-  );
-};
-
 const RouteComponent = (): React.JSX.Element => {
   const location = useLocation();
+  const navigate = useNavigate();
   const background = (location.state as TLocationState | null)?.background;
+
+  const handleModalClose = (): void => {
+    void navigate(-1);
+  };
 
   return (
     <>
       <Routes location={background ?? location}>
         <Route element={<ConstructorPage />} path={ROUTES.constructor} />
         <Route element={<Feed />} path={ROUTES.feed} />
-        <Route element={<OrderPage />} path={ROUTES.feedOrder} />
-        <Route element={<IngredientPage />} path={ROUTES.ingredient} />
+        <Route
+          element={
+            <div className={styles.detailPageWrap}>
+              <OrderInfo />
+            </div>
+          }
+          path={ROUTES.feedOrder}
+        />
+        <Route
+          element={
+            <div className={styles.detailPageWrap}>
+              <IngredientDetails />
+            </div>
+          }
+          path={ROUTES.ingredient}
+        />
         <Route
           element={
             <ProtectedRoute onlyUnAuth>
@@ -210,7 +180,9 @@ const RouteComponent = (): React.JSX.Element => {
         <Route
           element={
             <ProtectedRoute>
-              <OrderPage />
+              <div className={styles.detailPageWrap}>
+                <OrderInfo />
+              </div>
             </ProtectedRoute>
           }
           path={ROUTES.profileOrder}
@@ -219,12 +191,28 @@ const RouteComponent = (): React.JSX.Element => {
       </Routes>
       {background && (
         <Routes>
-          <Route element={<OrderModal />} path={ROUTES.feedOrder} />
-          <Route element={<IngredientModal />} path={ROUTES.ingredient} />
+          <Route
+            element={
+              <Modal onClose={handleModalClose} title={EMPTY_MODAL_TITLE}>
+                <OrderInfo />
+              </Modal>
+            }
+            path={ROUTES.feedOrder}
+          />
+          <Route
+            element={
+              <Modal onClose={handleModalClose} title={EMPTY_MODAL_TITLE}>
+                <IngredientDetails />
+              </Modal>
+            }
+            path={ROUTES.ingredient}
+          />
           <Route
             element={
               <ProtectedRoute>
-                <OrderModal />
+                <Modal onClose={handleModalClose} title={EMPTY_MODAL_TITLE}>
+                  <OrderInfo />
+                </Modal>
               </ProtectedRoute>
             }
             path={ROUTES.profileOrder}
