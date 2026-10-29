@@ -1,23 +1,39 @@
-import { Preloader, OrderInfoUI } from '@ui';
-import { useMemo } from 'react';
+import {
+  selectCurrentOrder,
+  selectFeedOrders,
+  selectUserOrders,
+} from '@selectors/feed-selectors';
+import { selectIngredients } from '@selectors/ingredients-selectors';
+import { fetchOrderByNumber } from '@slices/feed-slice';
+import { OrderInfoUI, Preloader } from '@ui';
+import { useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+
+import { useDispatch, useSelector } from '@services/store';
+import { padOrderNumber } from '@utils/constants';
 
 import type { TIngredient } from '@utils-types';
 
 export const OrderInfo = (): React.JSX.Element => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0,
-  };
+  const { number } = useParams();
+  const orderNumber = Number(number);
+  const dispatch = useDispatch();
+  const orders = useSelector(selectFeedOrders);
+  const userOrders = useSelector(selectUserOrders);
+  const currentOrder = useSelector(selectCurrentOrder);
+  const ingredients = useSelector(selectIngredients);
 
-  const ingredients: TIngredient[] = [];
+  const orderData =
+    orders.find((order) => order.number === orderNumber) ??
+    userOrders.find((order) => order.number === orderNumber) ??
+    (currentOrder?.number === orderNumber ? currentOrder : null);
 
-  /* Готовим данные для отображения */
+  useEffect(() => {
+    if (!orderData && orderNumber) {
+      void dispatch(fetchOrderByNumber(orderNumber));
+    }
+  }, [dispatch, orderData, orderNumber]);
+
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
@@ -51,8 +67,8 @@ export const OrderInfo = (): React.JSX.Element => {
 
     return {
       ...orderData,
-      ingredientsInfo,
       date,
+      ingredientsInfo,
       total,
     };
   }, [orderData, ingredients]);
@@ -61,5 +77,12 @@ export const OrderInfo = (): React.JSX.Element => {
     return <Preloader />;
   }
 
-  return <OrderInfoUI orderInfo={orderInfo} />;
+  return (
+    <>
+      <p className="text text_type_digits-default" style={{ textAlign: 'center' }}>
+        {padOrderNumber(number ?? '')}
+      </p>
+      <OrderInfoUI orderInfo={orderInfo} />
+    </>
+  );
 };
