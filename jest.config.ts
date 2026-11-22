@@ -1,8 +1,16 @@
 import type { Config } from 'jest';
 
 const config: Config = {
-  preset: 'ts-jest',
   testEnvironment: 'node',
+  collectCoverageFrom: [
+    'src/services/slices/ingredients-slice.ts',
+    'src/services/slices/constructor-slice.ts',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'html', 'lcov'],
+  coverageThreshold: {
+    global: { branches: 100, functions: 100, lines: 100, statements: 100 },
+  },
   roots: ['<rootDir>/src'],
   testMatch: ['**/*.test.ts'],
   moduleNameMapper: {
@@ -34,10 +42,13 @@ const config: Config = {
     '^@ui-pages/(.*)$': '<rootDir>/src/components/ui/pages/$1',
   },
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: 'tsconfig.test.json',
-      diagnostics: false,
-    }],
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.test.json',
+        diagnostics: true,
+      },
+    ],
   },
 };
 
