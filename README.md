@@ -36,3 +36,22 @@
 		'@utils': path.resolve(__dirname, './src/utils'),
 	},
 ```
+
+## Запуск проекта и тестов
+
+1. Установите зависимости: `npm ci`.
+2. Скопируйте `.env.example` в `.env` для обычного запуска приложения.
+3. Запустите приложение: `npm run start` (http://localhost:4000).
+
+Команды проверки:
+
+- `npm test` — Jest-тесты редьюсеров `ingredients` и `burgerConstructor`.
+- `npm run test:coverage` — покрытие двух редьюсеров в терминале и HTML-отчёт `coverage/index.html`.
+- `npx playwright install chromium` — установка браузера перед первым запуском Playwright.
+- `npm run e2e` — интеграционные тесты конструктора в Chromium.
+- `npm run e2e:ui` — интерактивный запуск Playwright.
+- `npm run typecheck` — проверка TypeScript приложения и тестов.
+- `npm run check` — проверка ESLint и Stylelint.
+- `npm run build` — сборка приложения.
+
+Playwright сам запускает тестовый сервер на порту 4000; перед запуском тестов этот порт должен быть свободен. Настройки API для него заданы в `playwright.config.ts`, поэтому локальный `.env` для тестов не требуется. Все запросы к API перехватываются через `page.routeFromHAR`; моки ингредиентов, пользователя и заказа находятся в `tests/hars`. Незнакомые запросы к API прерываются. Тест оформления заказа использует только фейковые токены и не создаёт заказ на сервере.
